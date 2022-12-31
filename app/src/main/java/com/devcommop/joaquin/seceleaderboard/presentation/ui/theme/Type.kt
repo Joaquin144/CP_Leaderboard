@@ -1,4 +1,4 @@
-package com.devcommop.joaquin.seceleaderboard.ui.theme
+package com.devcommop.joaquin.seceleaderboard.presentation.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
