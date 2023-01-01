@@ -4,6 +4,9 @@ import com.devcommop.joaquin.seceleaderboard.common.Constants
 import com.devcommop.joaquin.seceleaderboard.data.remote.CFApi
 import com.devcommop.joaquin.seceleaderboard.data.repository.CFRepositoryImpl
 import com.devcommop.joaquin.seceleaderboard.domain.repository.CFRepository
+import com.devcommop.joaquin.seceleaderboard.domain.use_cases.AppUseCases
+import com.devcommop.joaquin.seceleaderboard.domain.use_cases.GetCfHandlesUseCase
+import com.devcommop.joaquin.seceleaderboard.domain.use_cases.GetPartiesScoreUseCase
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
@@ -37,6 +40,15 @@ object AppModule {
     @Singleton
     fun provideCFRepository(api: CFApi): CFRepository {
         return CFRepositoryImpl(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAppUseCases(repository: CFRepository): AppUseCases {
+        return AppUseCases(
+            getCfHanlesUseCase = GetCfHandlesUseCase(repository = repository),
+            getPartiesScoreUseCase = GetPartiesScoreUseCase(repository = repository)
+        )
     }
 
 }

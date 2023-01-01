@@ -6,4 +6,6 @@ interface CFRepository {
 
     suspend fun getPartiesScore(options: Map<String,String>): PartiesScore
 
+    suspend fun getCfHandles(docId: String): String
+
 }

@@ -1,6 +1,7 @@
 package com.devcommop.joaquin.seceleaderboard.domain.use_cases
 
 import com.devcommop.joaquin.seceleaderboard.common.Constants
+import com.devcommop.joaquin.seceleaderboard.common.CustomException
 import com.devcommop.joaquin.seceleaderboard.common.Resource
 import com.devcommop.joaquin.seceleaderboard.data.remote.dto.Row
 import com.devcommop.joaquin.seceleaderboard.domain.repository.CFRepository
@@ -18,7 +19,7 @@ class GetPartiesScoreUseCase @Inject constructor(
             emit(Resource.Loading<List<Row>>())
             val partiesScore = repository.getPartiesScore(options= options)
             if(partiesScore.status == Constants.CF_API_FAILED_STATUS) {
-                throw Exception(message = partiesScore.comment)
+                throw CustomException(message = partiesScore.comment)
             }
             val rowsList = partiesScore.result.rows
             emit(Resource.Success<List<Row>>(rowsList))
