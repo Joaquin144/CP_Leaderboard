@@ -7,5 +7,6 @@ package com.devcommop.joaquin.seceleaderboard.domain.use_cases
  */
 data class AppUseCases(
     val getCfHanlesUseCase: GetCfHandlesUseCase,
-    val getPartiesScoreUseCase: GetPartiesScoreUseCase
+    val getPartiesScoreUseCase: GetPartiesScoreUseCase,
+    val getScoreboardUseCase: GetScoreboardUseCase
 )

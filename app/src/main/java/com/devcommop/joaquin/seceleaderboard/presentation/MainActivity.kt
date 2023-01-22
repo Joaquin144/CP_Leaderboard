@@ -10,8 +10,18 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.devcommop.joaquin.seceleaderboard.presentation.contest.ContestScreen
+import com.devcommop.joaquin.seceleaderboard.presentation.scoreboard.ScoreboardScreen
 import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.SECELeaderboardTheme
+import com.devcommop.joaquin.seceleaderboard.presentation.util.Screen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +32,30 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = Screen.ScoreboardScreen.route
+                    ){
+                        composable(
+                            route = Screen.ScoreboardScreen.route
+                        ){
+                            ScoreboardScreen(navController = navController)
+                        }
+                        composable(
+                            route = Screen.ContestScreen.route// + "?contestId={contestId}",
+//                            arguments = listOf(
+//                                navArgument(
+//                                    name = "contestId"
+//                                ){
+//                                    type = NavType.StringType
+//                                    defaultValue = "1767"
+//                                }
+//                            )
+                        ){
+                            ContestScreen(navController = navController)
+                        }
+                    }
                 }
             }
         }

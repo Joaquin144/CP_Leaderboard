@@ -17,7 +17,7 @@ class GetPartiesScoreUseCase @Inject constructor(
     operator fun invoke(options: Map<String,String>): Flow<Resource<List<Row>>> = flow{
         try{
             emit(Resource.Loading<List<Row>>())
-            val partiesScore = repository.getPartiesScore(options= options)
+            val partiesScore = repository.getPartiesScore(options = options)
             if(partiesScore.status == Constants.CF_API_FAILED_STATUS) {
                 throw CustomException(message = partiesScore.comment)
             }
