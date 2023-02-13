@@ -1,14 +1,14 @@
 package com.devcommop.joaquin.seceleaderboard.data.repository
 
 import android.util.Log
+import com.devcommop.joaquin.seceleaderboard.common.Constants
+import com.devcommop.joaquin.seceleaderboard.common.CustomException
 import com.devcommop.joaquin.seceleaderboard.data.remote.CFApi
 import com.devcommop.joaquin.seceleaderboard.data.remote.custom.ScoreboardResult
 import com.devcommop.joaquin.seceleaderboard.data.remote.dto.FirebaseUserEntity
 import com.devcommop.joaquin.seceleaderboard.data.remote.dto.PartiesScore
 import com.devcommop.joaquin.seceleaderboard.domain.repository.CFRepository
-import com.google.android.gms.tasks.Tasks.await
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -35,7 +35,7 @@ class CFRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getScoreboard(docId: String, removeOptions: Map<String, String>): ScoreboardResult {
-        val result = ScoreboardResult()
+        val scoreboardResult = ScoreboardResult()
         try{
             runBlocking {
                 val cfHandles = getCfHandles(docId = docId)
@@ -45,14 +45,26 @@ class CFRepositoryImpl @Inject constructor(
                     val options: HashMap<String,String> = hashMapOf()
                     options["contestId"] = contest
                     options["handles"] = cfHandles
-                    val currScore = getPartiesScore(options = options)//E! -> again runBlocking??
-                    result.scores
+                    val contestScore = getPartiesScore(options = options)//E! -> again runBlocking??
+                    if(contestScore.status == Constants.CF_API_SUCCESS_STATUS){
+                        for(row in contestScore.result.rows){
+                            val handleName = row.party.members[Constants.DEFAULT_MEMBER_IDX].handle
+                            val handleScore = row.points
+                            if(scoreboardResult.totalScores[handleName] == null)
+                                scoreboardResult.totalScores[handleName] = 0
+                            scoreboardResult.totalScores[handleName] = scoreboardResult.totalScores[handleName]!! + handleScore
+                        }
+                    }else{
+                        throw CustomException(message = contestScore.comment)
+                    }
+//                    scoreboardResult.scores
                 }
             }
         }catch (exception: Exception) {
-            result.exception = exception
+            scoreboardResult.exception = exception
         }
-        return result
+        Log.d(TAG, scoreboardResult.totalScores.toString())
+        return scoreboardResult
     }
 
     override suspend fun getContests(docId: String): String {
