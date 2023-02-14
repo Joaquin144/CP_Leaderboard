@@ -14,6 +14,6 @@ interface CFRepository {
 
     suspend fun getContests(docId: String): String
 
-    suspend fun getScoreboard(docId: String, options: Map<String, String>): ScoreboardResult
+    suspend fun getScoreboard(docId: String): ScoreboardResult
 
 }

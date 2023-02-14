@@ -9,4 +9,6 @@ sealed class Screen(val route: String) {
     object ContestScreen: Screen("contest_screen")
     object ContestantScreen: Screen("contestant_screen")
 
+    object SettingsScreen: Screen("settings_screen")
+
 }

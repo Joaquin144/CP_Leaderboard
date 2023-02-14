@@ -34,7 +34,7 @@ class CFRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getScoreboard(docId: String, removeOptions: Map<String, String>): ScoreboardResult {
+    override suspend fun getScoreboard(docId: String): ScoreboardResult {
         val scoreboardResult = ScoreboardResult()
         try{
             runBlocking {

@@ -12,10 +12,10 @@ import javax.inject.Inject
 class GetScoreboardUseCase @Inject constructor(
     private val repository: CFRepository
 ) {
-    operator fun invoke(docId: String, options: Map<String, String>): Flow<Resource<ScoreboardResult>> = flow{
+    operator fun invoke(docId: String): Flow<Resource<ScoreboardResult>> = flow{
         try{
             emit(Resource.Loading<ScoreboardResult>())
-            val scoreboard = repository.getScoreboard(docId = docId, options = options)
+            val scoreboard = repository.getScoreboard(docId = docId)
             emit(Resource.Success<ScoreboardResult>(scoreboard))
         }catch (e: HttpException){//response of server isn't a success (for success-> resCode starts with 2)
             emit(Resource.Error<ScoreboardResult>(e.localizedMessage ?: "An unexpected error occurred"))

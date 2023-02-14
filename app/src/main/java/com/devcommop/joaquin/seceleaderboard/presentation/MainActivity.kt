@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -17,12 +18,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.devcommop.joaquin.seceleaderboard.presentation.contest.ContestScreen
 import com.devcommop.joaquin.seceleaderboard.presentation.scoreboard.ScoreboardScreen
+import com.devcommop.joaquin.seceleaderboard.presentation.settings.SettingsScreen
+import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.BackgroundColor
 import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.SECELeaderboardTheme
 import com.devcommop.joaquin.seceleaderboard.presentation.util.Screen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -30,12 +34,12 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
+                    color = BackgroundColor
                 ) {
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
-                        startDestination = Screen.ScoreboardScreen.route
+                        startDestination = Screen.SettingsScreen.route
                     ){
                         composable(
                             route = Screen.ScoreboardScreen.route
@@ -54,6 +58,11 @@ class MainActivity : ComponentActivity() {
 //                            )
                         ){
                             ContestScreen(navController = navController)
+                        }
+                        composable(
+                            route = Screen.SettingsScreen.route
+                        ){
+                            SettingsScreen(navController = navController)
                         }
                     }
                 }
