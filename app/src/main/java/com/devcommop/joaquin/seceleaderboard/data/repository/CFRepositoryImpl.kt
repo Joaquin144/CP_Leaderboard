@@ -76,6 +76,7 @@ class CFRepositoryImpl @Inject constructor(
             scoreboardResult.exception = exception
         }
         Log.d(TAG, scoreboardResult.totalScores.toSortedMap().toString())
+        scoreboardResult.sortTotalScores()
         return scoreboardResult
     }
 

@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.devcommop.joaquin.seceleaderboard.R
+import com.devcommop.joaquin.seceleaderboard.presentation.common.HeaderText
 import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.LightPrimaryColor
 import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.PrimaryColor
 import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.SecondaryColor
@@ -31,27 +32,11 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     Column() {
-        HeaderText()
+        HeaderText(text = "Settings")
         ProfileCardUI()
         GeneralOptionsUI()
         SupportOptionsUI()
     }
-}
-
-
-@Composable
-fun HeaderText() {
-    Text(
-        text = "Settings",
-        fontFamily = FontFamily(Font(R.font.poppins)),
-        color = SecondaryColor,
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 30.dp, bottom = 10.dp),
-        fontWeight = FontWeight.ExtraBold,
-        fontSize = 16.sp
-    )
 }
 
 @Composable

@@ -8,7 +8,7 @@ sealed class Screen(val route: String) {
     object ScoreboardScreen: Screen("scoreboard_screen")
     object ContestScreen: Screen("contest_screen")
     object ContestantScreen: Screen("contestant_screen")
-
     object SettingsScreen: Screen("settings_screen")
+    object ContestsListScreen: Screen("contests_list_screen")
 
 }

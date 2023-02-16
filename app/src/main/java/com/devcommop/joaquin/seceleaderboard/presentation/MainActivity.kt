@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.devcommop.joaquin.seceleaderboard.presentation.contest.ContestScreen
+import com.devcommop.joaquin.seceleaderboard.presentation.contestslist.ContestsListScreen
 import com.devcommop.joaquin.seceleaderboard.presentation.scoreboard.ScoreboardScreen
 import com.devcommop.joaquin.seceleaderboard.presentation.settings.SettingsScreen
 import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.BackgroundColor
@@ -63,6 +64,11 @@ class MainActivity : ComponentActivity() {
                             route = Screen.SettingsScreen.route
                         ){
                             SettingsScreen(navController = navController)
+                        }
+                        composable(
+                            route = Screen.ContestsListScreen.route
+                        ){
+                            ContestsListScreen(navController = navController)
                         }
                     }
                 }
