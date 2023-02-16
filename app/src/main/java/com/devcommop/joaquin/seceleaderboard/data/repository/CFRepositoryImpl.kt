@@ -8,7 +8,10 @@ import com.devcommop.joaquin.seceleaderboard.data.remote.custom.ScoreboardResult
 import com.devcommop.joaquin.seceleaderboard.data.remote.dto.FirebaseUserEntity
 import com.devcommop.joaquin.seceleaderboard.data.remote.dto.PartiesScore
 import com.devcommop.joaquin.seceleaderboard.domain.repository.CFRepository
+import com.devcommop.joaquin.seceleaderboard.domain.util.CfScoreCalculator
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -40,30 +43,39 @@ class CFRepositoryImpl @Inject constructor(
             runBlocking {
                 val cfHandles = getCfHandles(docId = docId)
                 val contests = getContests(docId = docId).split(";")
+                Log.d(TAG, "contests size = ${contests.size}  ===>  $contests")
                 Log.d(TAG, "cfHandles in runBlocking: $cfHandles")
                 for(contest in contests){
+                    Log.d(TAG, "doing contest :  $contest")
                     val options: HashMap<String,String> = hashMapOf()
                     options["contestId"] = contest
                     options["handles"] = cfHandles
-                    val contestScore = getPartiesScore(options = options)//E! -> again runBlocking??
+                    lateinit var contestScore: PartiesScore
+                    val contestScoreJob = launch { contestScore = getPartiesScore(options = options) }
+                    ////val contestScore = getPartiesScore(options = options)//E! -> again runBlocking??
+                    contestScoreJob.join()
                     if(contestScore.status == Constants.CF_API_SUCCESS_STATUS){
+                        Log.d(TAG, "Success $contest")
                         for(row in contestScore.result.rows){
                             val handleName = row.party.members[Constants.DEFAULT_MEMBER_IDX].handle
-                            val handleScore = row.points
+                            val handleRank = row.rank
+                            val handleScore = CfScoreCalculator.getScore(handleRank)
                             if(scoreboardResult.totalScores[handleName] == null)
                                 scoreboardResult.totalScores[handleName] = 0
                             scoreboardResult.totalScores[handleName] = scoreboardResult.totalScores[handleName]!! + handleScore
                         }
                     }else{
-                        throw CustomException(message = contestScore.comment)
+                        Log.d(TAG, "Something bad happened in contest: $contest")
+                        //throw CustomException(message = contestScore.comment)
                     }
-//                    scoreboardResult.scores
+                    delay(150)
                 }
             }
         }catch (exception: Exception) {
+            Log.d(TAG, "Something bad happened : ${exception.message}")
             scoreboardResult.exception = exception
         }
-        Log.d(TAG, scoreboardResult.totalScores.toString())
+        Log.d(TAG, scoreboardResult.totalScores.toSortedMap().toString())
         return scoreboardResult
     }
 

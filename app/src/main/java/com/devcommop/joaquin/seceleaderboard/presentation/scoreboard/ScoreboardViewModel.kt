@@ -40,7 +40,7 @@ class ScoreboardViewModel @Inject constructor(
 
     private fun getOverallRankings() {
         viewModelScope.launch {
-            appUseCases.getScoreboardUseCase(docId = "test_doc").collectLatest { res ->
+            appUseCases.getScoreboardUseCase(docId = "ece_2021").collectLatest { res ->
                 when (res) {
                     is Resource.Success -> {
                         _state.value = state.value.copy(rankings = res.data!!.totalScores,

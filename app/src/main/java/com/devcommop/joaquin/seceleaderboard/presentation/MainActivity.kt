@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
-                        startDestination = Screen.SettingsScreen.route
+                        startDestination = Screen.ScoreboardScreen.route
                     ){
                         composable(
                             route = Screen.ScoreboardScreen.route
