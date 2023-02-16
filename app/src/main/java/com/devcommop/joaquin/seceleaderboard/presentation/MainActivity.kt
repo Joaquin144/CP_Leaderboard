@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
-                        startDestination = Screen.ScoreboardScreen.route
+                        startDestination = Screen.ContestsListScreen.route
                     ){
                         composable(
                             route = Screen.ScoreboardScreen.route

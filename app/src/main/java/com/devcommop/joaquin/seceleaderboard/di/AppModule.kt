@@ -4,10 +4,7 @@ import com.devcommop.joaquin.seceleaderboard.common.Constants
 import com.devcommop.joaquin.seceleaderboard.data.remote.CFApi
 import com.devcommop.joaquin.seceleaderboard.data.repository.CFRepositoryImpl
 import com.devcommop.joaquin.seceleaderboard.domain.repository.CFRepository
-import com.devcommop.joaquin.seceleaderboard.domain.use_cases.AppUseCases
-import com.devcommop.joaquin.seceleaderboard.domain.use_cases.GetCfHandlesUseCase
-import com.devcommop.joaquin.seceleaderboard.domain.use_cases.GetPartiesScoreUseCase
-import com.devcommop.joaquin.seceleaderboard.domain.use_cases.GetScoreboardUseCase
+import com.devcommop.joaquin.seceleaderboard.domain.use_cases.*
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
@@ -49,7 +46,8 @@ object AppModule {
         return AppUseCases(
             getCfHanlesUseCase = GetCfHandlesUseCase(repository = repository),
             getPartiesScoreUseCase = GetPartiesScoreUseCase(repository = repository),
-            getScoreboardUseCase = GetScoreboardUseCase(repository = repository)
+            getScoreboardUseCase = GetScoreboardUseCase(repository = repository),
+            getContestsListUseCase = GetContestsListUseCase(repository = repository)
         )
     }
 
