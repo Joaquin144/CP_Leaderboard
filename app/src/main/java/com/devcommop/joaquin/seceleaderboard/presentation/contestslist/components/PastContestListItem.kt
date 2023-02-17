@@ -1,9 +1,7 @@
 package com.devcommop.joaquin.seceleaderboard.presentation.contestslist.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Card
 import androidx.compose.material.Text
@@ -20,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.devcommop.joaquin.seceleaderboard.R
 
 @Composable
-fun ContestListItem(
+fun PastContestListItem(
     contestId: String
 ) {
     val paddingModifier = Modifier.padding(10.dp)

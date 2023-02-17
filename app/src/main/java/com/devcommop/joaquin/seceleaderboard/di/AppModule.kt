@@ -47,7 +47,8 @@ object AppModule {
             getCfHanlesUseCase = GetCfHandlesUseCase(repository = repository),
             getPartiesScoreUseCase = GetPartiesScoreUseCase(repository = repository),
             getScoreboardUseCase = GetScoreboardUseCase(repository = repository),
-            getContestsListUseCase = GetContestsListUseCase(repository = repository)
+            getContestsListUseCase = GetContestsListUseCase(repository = repository),
+            getUpcomingContestsListUseCase = GetUpcomingContestsUseCase(repository = repository)
         )
     }
 

@@ -9,5 +9,6 @@ data class AppUseCases(
     val getCfHanlesUseCase: GetCfHandlesUseCase,
     val getPartiesScoreUseCase: GetPartiesScoreUseCase,
     val getScoreboardUseCase: GetScoreboardUseCase,
-    val getContestsListUseCase: GetContestsListUseCase
+    val getContestsListUseCase: GetContestsListUseCase,
+    val getUpcomingContestsListUseCase: GetUpcomingContestsUseCase
 )

@@ -1,6 +1,7 @@
 package com.devcommop.joaquin.seceleaderboard.domain.repository
 
 import com.devcommop.joaquin.seceleaderboard.data.remote.custom.ScoreboardResult
+import com.devcommop.joaquin.seceleaderboard.data.remote.dto.Contest
 import com.devcommop.joaquin.seceleaderboard.data.remote.dto.PartiesScore
 
 /**
@@ -15,5 +16,7 @@ interface CFRepository {
     suspend fun getContests(docId: String): String
 
     suspend fun getScoreboard(docId: String): ScoreboardResult
+
+    suspend fun getUpcomingContestsList(): List<Contest>
 
 }
