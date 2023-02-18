@@ -98,7 +98,8 @@ class CFRepositoryImpl @Inject constructor(
     override suspend fun getUpcomingContestsList(): List<Contest> {
         try {
             val list = api.getUpcomingContestsList().result.filter { contest ->
-                contest.phase == "BEFORE" && (contest.relativeTimeSeconds.let { time -> abs(time) <= 24 * 7 * 60 * 60 })
+                contest.phase == "BEFORE"
+                //contest.phase == "BEFORE" && (contest.relativeTimeSeconds.let { time -> abs(time) <= 24 * 7 * 60 * 60 })
             }
             Log.d(TAG, "Upcoming Contests: $list")
             return list.reversed()

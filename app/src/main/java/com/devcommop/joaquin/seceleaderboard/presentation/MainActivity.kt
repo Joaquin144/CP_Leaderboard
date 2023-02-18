@@ -4,11 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavType
@@ -16,14 +17,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.devcommop.joaquin.seceleaderboard.common.Constants
 import com.devcommop.joaquin.seceleaderboard.presentation.contest.ContestScreen
 import com.devcommop.joaquin.seceleaderboard.presentation.contestslist.ContestsListScreen
 import com.devcommop.joaquin.seceleaderboard.presentation.scoreboard.ScoreboardScreen
 import com.devcommop.joaquin.seceleaderboard.presentation.settings.SettingsScreen
+import com.devcommop.joaquin.seceleaderboard.presentation.sidedrawer.AppBar
+import com.devcommop.joaquin.seceleaderboard.presentation.sidedrawer.DrawerBody
+import com.devcommop.joaquin.seceleaderboard.presentation.sidedrawer.DrawerHeader
+import com.devcommop.joaquin.seceleaderboard.presentation.sidedrawer.MenuItem
 import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.BackgroundColor
 import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.SECELeaderboardTheme
 import com.devcommop.joaquin.seceleaderboard.presentation.util.Screen
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -32,12 +39,73 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SECELeaderboardTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
+                val navController = rememberNavController()
+                val scaffoldState = rememberScaffoldState()
+                val scope = rememberCoroutineScope()
+                Scaffold(
+                    scaffoldState = scaffoldState,
+                    topBar = {
+                        AppBar(
+                            onNavigationIconClick = {
+                                scope.launch {
+                                    scaffoldState.drawerState.open()
+                                }
+                            }
+                        )
+                    },
+                    drawerGesturesEnabled = scaffoldState.drawerState.isOpen,//not to be annoying
+                    drawerContent = {
+                        DrawerHeader()
+                        DrawerBody(
+                            items = listOf(
+                                MenuItem(
+                                    id = "contests_list_screen",
+                                    title = "Contests",
+                                    contentDescription = "Go to contests screen",
+                                    icon = Icons.Default.Home
+                                ),
+                                MenuItem(
+                                    id = "scoreboard_screen",
+                                    title = "CP Leaderboard",
+                                    contentDescription = "Go to leaderboard screen",
+                                    icon = Icons.Default.Home
+                                ),MenuItem(
+                                    id = "settings_screen",
+                                    title = "Settings",
+                                    contentDescription = "Go to settings screen",
+                                    icon = Icons.Default.Settings
+                                ),
+                            ),
+                            onItemClick = {
+                                when(it.id){
+                                    "contests_list_screen" -> {
+                                        navController.navigate(route = Screen.ContestsListScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                    "scoreboard_screen" -> {
+                                        navController.navigate(route = Screen.ScoreboardScreen.route){
+                                            popUpTo(Screen.ContestsListScreen.route)
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                    "settings_screen" -> {
+                                        navController.navigate(route = Screen.SettingsScreen.route){
+                                            popUpTo(Screen.ContestsListScreen.route)
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                }
+                                scope.launch {
+                                    scaffoldState.drawerState.close()
+                                }
+                            }
+                        )
+                    },
                     modifier = Modifier.fillMaxSize(),
-                    color = BackgroundColor
+                    backgroundColor = BackgroundColor
                 ) {
-                    val navController = rememberNavController()
+                    //val navController = rememberNavController()
                     NavHost(
                         navController = navController,
                         startDestination = Screen.ContestsListScreen.route

@@ -18,11 +18,12 @@ import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.SecondaryColo
 
 @Composable
 fun UpcomingContestListItem(contest: Contest) {
+    Spacer(modifier = Modifier.height(12.dp))
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White)
-            .padding(8.dp)
+            .padding(20.dp)
     ) {
         Text(
             text = contest.name,

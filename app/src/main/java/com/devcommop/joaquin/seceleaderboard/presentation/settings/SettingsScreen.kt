@@ -1,19 +1,21 @@
 package com.devcommop.joaquin.seceleaderboard.presentation.settings
 
-import androidx.compose.foundation.Image
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -21,7 +23,6 @@ import androidx.navigation.NavController
 import com.devcommop.joaquin.seceleaderboard.R
 import com.devcommop.joaquin.seceleaderboard.presentation.common.HeaderText
 import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.LightPrimaryColor
-import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.PrimaryColor
 import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.SecondaryColor
 import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.Shapes
 
@@ -33,72 +34,8 @@ fun SettingsScreen(
 ) {
     Column() {
         HeaderText(text = "Settings")
-        ProfileCardUI()
         GeneralOptionsUI()
         SupportOptionsUI()
-    }
-}
-
-@Composable
-fun ProfileCardUI() {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .padding(10.dp),
-        backgroundColor = Color.White,
-        elevation = 0.dp,
-        shape = Shapes.large
-    ) {
-        Row(
-            modifier = Modifier.padding(20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column() {
-                Text(
-                    text = "Check Your Profile",
-                    fontFamily = FontFamily(Font(R.font.poppins)),
-                    color = SecondaryColor,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-
-                Text(
-                    text = "example@vizmail.com",
-                    fontFamily = FontFamily(Font(R.font.poppins)),
-                    color = Color.Gray,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-
-                Button(
-                    modifier = Modifier.padding(top = 10.dp),
-                    onClick = {},
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = PrimaryColor
-                    ),
-                    contentPadding = PaddingValues(horizontal = 30.dp),
-                    elevation = ButtonDefaults.elevation(
-                        defaultElevation = 0.dp,
-                        pressedElevation = 2.dp
-                    ),
-                    shape = Shapes.medium
-                ) {
-                    Text(
-                        text = "View",
-                        fontFamily = FontFamily(Font(R.font.poppins)),
-                        color = SecondaryColor,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-            Image(
-                painter = painterResource(id = R.drawable.ic_profile_card_image),
-                contentDescription = "",
-                modifier = Modifier.height(120.dp)
-            )
-        }
     }
 }
 
@@ -200,6 +137,10 @@ fun GeneralSettingItem(icon: Int, mainText: String, subText: String, onClick: ()
 @ExperimentalMaterialApi
 @Composable
 fun SupportOptionsUI() {
+    val context = LocalContext.current
+    val gitIntent = remember { Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Joaquin144/CP_Leaderboard")) }
+    val aboutIntent = remember { Intent(Intent.ACTION_VIEW, Uri.parse("https://demo-electropix.netlify.app/")) }
+
     Column(
         modifier = Modifier
             .padding(horizontal = 14.dp)
@@ -232,7 +173,12 @@ fun SupportOptionsUI() {
         SupportItem(
             icon = R.drawable.ic_about,
             mainText = "About",
-            onClick = {}
+            onClick = { context.startActivity(aboutIntent) }
+        )
+        SupportItem(
+            icon = R.drawable.ic_eye_open,
+            mainText = "Code",
+            onClick = { context.startActivity(gitIntent) }
         )
     }
 }
