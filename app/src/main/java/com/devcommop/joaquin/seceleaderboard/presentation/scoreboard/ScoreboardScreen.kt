@@ -26,7 +26,9 @@ fun ScoreboardScreen(
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
     if(state.currentStatus != "SUCCESS"){
-        AnimatedShimmer()
+        repeat(15){
+            AnimatedShimmer()
+        }
     }else{
         Scaffold(
             scaffoldState = scaffoldState

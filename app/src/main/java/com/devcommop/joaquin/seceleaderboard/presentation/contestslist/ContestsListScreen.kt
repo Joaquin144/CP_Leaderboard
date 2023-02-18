@@ -24,6 +24,7 @@ import com.devcommop.joaquin.seceleaderboard.presentation.common.HeaderText
 import com.devcommop.joaquin.seceleaderboard.presentation.contestslist.components.PastContestListItem
 import com.devcommop.joaquin.seceleaderboard.presentation.contestslist.components.UpcomingContestListItem
 import com.devcommop.joaquin.seceleaderboard.presentation.ui.theme.SecondaryColor
+import com.devcommop.joaquin.seceleaderboard.presentation.util.Screen
 
 @Composable
 fun ContestsListScreen(
@@ -36,14 +37,17 @@ fun ContestsListScreen(
 
     Column() {
         HeaderText(text = "Codeforces Contests")
-        PastContestsUI(state = state)
+        PastContestsUI(
+            state = state,
+            navController = navController
+        )
         Spacer(modifier = Modifier.height(28.dp))
         UpcomingContestsUI(state = state)
     }
 }
 
 @Composable
-fun PastContestsUI(state: ContestsListState) {
+fun PastContestsUI(state: ContestsListState, navController: NavController) {
     Text(
         text = "Past Contests",
         fontFamily = FontFamily(Font(R.font.poppins)),
@@ -59,7 +63,12 @@ fun PastContestsUI(state: ContestsListState) {
             .padding(top = 10.dp)
     ) {
         items(state.pastContestsList) { contestId ->
-            PastContestListItem(contestId = contestId)
+            PastContestListItem(
+                contestId = contestId,
+                onItemClick = {
+                    navController.navigate(route = Screen.ContestScreen.route + "/${it}")
+                }
+            )
         }
     }
 }

@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.devcommop.joaquin.seceleaderboard.common.Resource
 import com.devcommop.joaquin.seceleaderboard.domain.use_cases.AppUseCases
-import com.devcommop.joaquin.seceleaderboard.presentation.contest.UiEvent
+import com.devcommop.joaquin.seceleaderboard.presentation.common.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -44,7 +44,10 @@ class ContestsListViewModel @Inject constructor(
             appUseCases.getContestsListUseCase(docId = "ece_2021").collectLatest { res ->
                 when (res) {
                     is Resource.Success -> {
-                        _state.value = state.value.copy(pastContestsList = res.data!!.split(";"))
+                        _state.value = state.value.copy(
+                            pastContestsList = res.data!!.split(";").map { contest ->
+                                contest.toInt()
+                            }.sorted().map { it -> it.toString() })
                     }
                     is Resource.Loading -> {
                         //todo: notify loading through event

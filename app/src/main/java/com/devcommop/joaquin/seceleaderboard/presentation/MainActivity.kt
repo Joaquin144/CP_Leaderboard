@@ -41,14 +41,19 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = Screen.ContestsListScreen.route
-                    ){
+                    ) {
                         composable(
                             route = Screen.ScoreboardScreen.route
-                        ){
+                        ) {
                             ScoreboardScreen(navController = navController)
                         }
                         composable(
-                            route = Screen.ContestScreen.route// + "?contestId={contestId}",
+                            route = Screen.ContestsListScreen.route
+                        ) {
+                            ContestsListScreen(navController = navController)
+                        }
+                        composable(
+                            route = Screen.ContestScreen.route + "/{contestId}",
 //                            arguments = listOf(
 //                                navArgument(
 //                                    name = "contestId"
@@ -57,18 +62,13 @@ class MainActivity : ComponentActivity() {
 //                                    defaultValue = "1767"
 //                                }
 //                            )
-                        ){
+                        ) {
                             ContestScreen(navController = navController)
                         }
                         composable(
                             route = Screen.SettingsScreen.route
-                        ){
+                        ) {
                             SettingsScreen(navController = navController)
-                        }
-                        composable(
-                            route = Screen.ContestsListScreen.route
-                        ){
-                            ContestsListScreen(navController = navController)
                         }
                     }
                 }

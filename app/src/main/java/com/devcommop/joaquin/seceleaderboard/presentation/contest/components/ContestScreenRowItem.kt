@@ -15,11 +15,10 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ContestScreenRowItem(
     serial: Int = 1,
-    handleName: String = "joaquin144",
+    handleName: String,
     handleOnClick: () -> Unit = {},
     handleRank: Int = 1,
-    handlePoints: Int = 0,
-    handlePenalty: Int = 0
+    handleScore: Int = 0
 ) {
     Row(
         modifier = Modifier
@@ -29,21 +28,18 @@ fun ContestScreenRowItem(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = serial.toString())
-//        Text(
-//            modifier = Modifier.
-//                clickable { handleOnClick },
-//            text = handleName
-//        )
-        CfHandleBox(handleName = handleName, onHandleClick = handleOnClick)
+        Text(
+            text = handleName.toString(),
+            modifier = Modifier
+                .clickable { handleOnClick() }
+        )
         Text(text = handleRank.toString())
-        Text(text = handlePoints.toString())
-        Text(text = handlePenalty.toString())
-
+        Text(text = handleScore.toString())
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewContestScreenRowItem() {
-    ContestScreenRowItem()
+    ContestScreenRowItem(handleName = "null")
 }

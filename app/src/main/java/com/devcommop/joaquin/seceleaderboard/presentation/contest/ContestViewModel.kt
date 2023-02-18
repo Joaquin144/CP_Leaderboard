@@ -6,8 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.devcommop.joaquin.seceleaderboard.common.Constants
 import com.devcommop.joaquin.seceleaderboard.common.Resource
 import com.devcommop.joaquin.seceleaderboard.domain.use_cases.AppUseCases
+import com.devcommop.joaquin.seceleaderboard.presentation.common.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -35,16 +37,19 @@ class ContestViewModel @Inject constructor(
 
     init {
         Log.d(TAG, "I am initialised")
-        getPartiesScore()
+        savedStateHandle.get<String>(Constants.PARAM_CONTEST_ID)?.let{ contestId ->
+            _state.value.contestId = contestId
+            getPartiesScore(contestId = contestId)
+        }
+        //getPartiesScore()
     }
 
-    private fun getPartiesScore() {
+    private fun getPartiesScore(contestId: String) {
         //getPartiesScoreJob?.cancel()
         //        savedStateHandle.get<String>("contestId") ?.let { contestId ->
-        val contestId = "1767"
         viewModelScope.launch {
             var cfHandles = "empty"
-            appUseCases.getCfHanlesUseCase(docId = "test_doc").collectLatest { res ->
+            appUseCases.getCfHanlesUseCase(docId = "ece_2021").collectLatest { res ->
                 when (res) {
                     is Resource.Success -> {
                         Log.d(TAG, "res: ${res}")

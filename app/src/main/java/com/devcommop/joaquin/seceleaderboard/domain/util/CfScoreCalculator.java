@@ -6,7 +6,7 @@ public class CfScoreCalculator {
      *
      * @param rank stands for the rank of candidate in contest.
      *             If the candidate has not given the contest then rank must be provided as -1
-     * @return [score] The score of the candidate as per decided by SECE society
+     * @return [score] The score of the candidate as per decided by senior members of SECE society
      */
     public static int getScore(int rank) {
         if(rank == 0)  return 0;

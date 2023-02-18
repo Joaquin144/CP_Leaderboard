@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.devcommop.joaquin.seceleaderboard.common.Resource
 import com.devcommop.joaquin.seceleaderboard.domain.use_cases.AppUseCases
-import com.devcommop.joaquin.seceleaderboard.presentation.contest.UiEvent
+import com.devcommop.joaquin.seceleaderboard.presentation.common.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow

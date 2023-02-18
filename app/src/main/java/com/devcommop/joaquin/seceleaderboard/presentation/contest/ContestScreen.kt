@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.devcommop.joaquin.seceleaderboard.domain.util.CfScoreCalculator
 import com.devcommop.joaquin.seceleaderboard.presentation.contest.components.ContestScreenRowItem
 import com.devcommop.joaquin.seceleaderboard.presentation.contest.components.ContestScreenRowItemHeading
 import com.devcommop.joaquin.seceleaderboard.presentation.contest.components.ScreenHeading
@@ -35,14 +36,6 @@ fun ContestScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { },
-                backgroundColor = MaterialTheme.colors.primary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Hi")
-            }
-        },
         scaffoldState = scaffoldState
     ) {
         Column(
@@ -50,24 +43,22 @@ fun ContestScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            ScreenHeading("1767")
-            if(state.currentStatus == "LOADING") {
-                repeat(15){
+            ScreenHeading(text = state.contestId)
+            if (state.currentStatus == "LOADING") {
+                repeat(15) {
                     AnimatedShimmer()
                 }
-            }
-            else{
+            } else {
                 Spacer(modifier = Modifier.height(16.dp))
                 ContestScreenRowItemHeading()
-                LazyColumn(modifier = Modifier.fillMaxSize()){
-                    itemsIndexed(state.parties){ currIndex, party ->
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    itemsIndexed(state.parties) { currIndex, party ->
                         ContestScreenRowItem(
                             serial = currIndex + 1,
                             handleName = party.party.members[0].handle,
                             handleOnClick = { Log.d(TAG, "Handle clicked at index: $currIndex") },
                             handleRank = party.rank,
-                            handlePoints = party.points,
-                            handlePenalty = party.penalty
+                            handleScore = CfScoreCalculator.getScore(party.rank)
                         )
                     }
                 }
@@ -75,3 +66,14 @@ fun ContestScreen(
         }
     }
 }
+
+/*
+floatingActionButton = {
+FloatingActionButton(
+onClick = { },
+backgroundColor = MaterialTheme.colors.primary
+) {
+Icon(Icons.Default.Add, contentDescription = "Hi")
+}
+},
+*/
