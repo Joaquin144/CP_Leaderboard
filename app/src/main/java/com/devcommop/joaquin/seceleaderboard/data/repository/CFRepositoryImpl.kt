@@ -1,6 +1,7 @@
 package com.devcommop.joaquin.seceleaderboard.data.repository
 
 import android.util.Log
+import com.devcommop.joaquin.seceleaderboard.CoroutinePractice
 import com.devcommop.joaquin.seceleaderboard.common.Constants
 import com.devcommop.joaquin.seceleaderboard.common.CustomException
 import com.devcommop.joaquin.seceleaderboard.data.remote.CFApi
@@ -11,9 +12,7 @@ import com.devcommop.joaquin.seceleaderboard.data.remote.dto.PartiesScore
 import com.devcommop.joaquin.seceleaderboard.domain.repository.CFRepository
 import com.devcommop.joaquin.seceleaderboard.domain.util.CfScoreCalculator
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.math.abs
@@ -43,49 +42,51 @@ class CFRepositoryImpl @Inject constructor(
     override suspend fun getScoreboard(docId: String): ScoreboardResult {
         val scoreboardResult = ScoreboardResult()
         try {
-            runBlocking {
+            withContext(Dispatchers.IO) {
                 val cfHandles = getCfHandles(docId = docId)
                 val contests = getContests(docId = docId).split(";")
                 Log.d(TAG, "contests size = ${contests.size}  ===>  $contests")
                 Log.d(TAG, "cfHandles in runBlocking: $cfHandles")
-                for (contest in contests) {
-                    Log.d(TAG, "doing contest :  $contest")
-                    val options: HashMap<String, String> = hashMapOf()
-                    options["contestId"] = contest
-                    options["handles"] = cfHandles
+                var i = 0
+                while (i < contests.size) {
+                    val contest = contests[i]
+                    val options = hashMapOf("contestId" to contest, "handles" to cfHandles)
+                    Log.d(TAG, "Doing contest: $contest")
                     lateinit var contestScore: PartiesScore
-                    val contestScoreJob =
-                        launch { contestScore = getPartiesScore(options = options) }
-                    ////val contestScore = getPartiesScore(options = options)//E! -> again runBlocking??
-                    contestScoreJob.join()
-                    if (contestScore.status == Constants.CF_API_SUCCESS_STATUS) {
-                        Log.d(TAG, "Success $contest")
-                        for (row in contestScore.result.rows) {
-                            val handleName = row.party.members[Constants.DEFAULT_MEMBER_IDX].handle
-                            val handleRank = row.rank
-                            val handleScore = CfScoreCalculator.getScore(handleRank)
-                            if (scoreboardResult.totalScores[handleName] == null)
-                                scoreboardResult.totalScores[handleName] = 0
-                            scoreboardResult.totalScores[handleName] =
-                                scoreboardResult.totalScores[handleName]!! + handleScore
+                    async {
+                        contestScore = getPartiesScore(options = options)
+                        if (contestScore.status == Constants.CF_API_SUCCESS_STATUS) {
+                            Log.d(TAG, "Success $contest")
+                            for (row in contestScore.result.rows) {
+                                val handleName = row.party.members[Constants.DEFAULT_MEMBER_IDX].handle
+                                val handleRank = row.rank
+                                val handleScore = CfScoreCalculator.getScore(handleRank)
+                                if (scoreboardResult.totalScores[handleName] == null)
+                                    scoreboardResult.totalScores[handleName] = 0
+                                scoreboardResult.totalScores[handleName] = scoreboardResult.totalScores[handleName]!! + handleScore
+                            }
+                        } else {
+                            //i--
+                            //delay(200)//retry with 1s cooldown   --> Not working beacuse Retroift response is not handled
+                            //throw (CustomException(message = "Failed to fetch contest: Codeforces $contest"))
                         }
-                    } else {
-                        Log.d(TAG, "Something bad happened in contest: $contest")
-                        //throw CustomException(message = contestScore.comment)
-                    }
-                    delay(150)
+                        delay(1500)
+                    }.await()
+                    i++
                 }
             }
+            Log.d(TAG, scoreboardResult.totalScores.toSortedMap().toString())
+            scoreboardResult.sortTotalScores()
+            return scoreboardResult
         } catch (exception: Exception) {
             Log.d(TAG, "Something bad happened : ${exception.message}")
             scoreboardResult.exception = exception
+            return scoreboardResult
         }
-        Log.d(TAG, scoreboardResult.totalScores.toSortedMap().toString())
-        scoreboardResult.sortTotalScores()
-        return scoreboardResult
     }
 
     override suspend fun getContests(docId: String): String {
+        ////val cc = CoroutinePractice()
         try {
             val userEntity = firestore.collection("USERS").document(docId).get().await()
                 .toObject(FirebaseUserEntity::class.java)
@@ -109,4 +110,49 @@ class CFRepositoryImpl @Inject constructor(
     }
 
 }
+
+//override suspend fun getScoreboard(docId: String): ScoreboardResult {
+//    val scoreboardResult = ScoreboardResult()
+//    try {
+//        runBlocking {
+//            val cfHandles = getCfHandles(docId = docId)
+//            val contests = getContests(docId = docId).split(";")
+//            Log.d(TAG, "contests size = ${contests.size}  ===>  $contests")
+//            Log.d(TAG, "cfHandles in runBlocking: $cfHandles")
+//            for (contest in contests) {
+//                Log.d(TAG, "doing contest :  $contest")
+//                val options: HashMap<String, String> = hashMapOf()
+//                options["contestId"] = contest
+//                options["handles"] = cfHandles
+//                lateinit var contestScore: PartiesScore
+//                val contestScoreJob =
+//                    launch { contestScore = getPartiesScore(options = options) }
+//                ////val contestScore = getPartiesScore(options = options)//E! -> again runBlocking??
+//                contestScoreJob.join()
+//                if (contestScore.status == Constants.CF_API_SUCCESS_STATUS) {
+//                    Log.d(TAG, "Success $contest")
+//                    for (row in contestScore.result.rows) {
+//                        val handleName = row.party.members[Constants.DEFAULT_MEMBER_IDX].handle
+//                        val handleRank = row.rank
+//                        val handleScore = CfScoreCalculator.getScore(handleRank)
+//                        if (scoreboardResult.totalScores[handleName] == null)
+//                            scoreboardResult.totalScores[handleName] = 0
+//                        scoreboardResult.totalScores[handleName] =
+//                            scoreboardResult.totalScores[handleName]!! + handleScore
+//                    }
+//                } else {
+//                    Log.d(TAG, "Something bad happened in contest: $contest")
+//                    //throw CustomException(message = contestScore.comment)
+//                }
+//                delay(150)
+//            }
+//        }
+//    } catch (exception: Exception) {
+//        Log.d(TAG, "Something bad happened : ${exception.message}")
+//        scoreboardResult.exception = exception
+//    }
+//    Log.d(TAG, scoreboardResult.totalScores.toSortedMap().toString())
+//    scoreboardResult.sortTotalScores()
+//    return scoreboardResult
+//}
 

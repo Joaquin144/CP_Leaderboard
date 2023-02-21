@@ -25,11 +25,13 @@ fun ScoreboardScreen(
     val state = viewModel.state.value
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
-    if(state.currentStatus != "SUCCESS"){
-        repeat(15){
-            AnimatedShimmer()
+    if (state.currentStatus != "SUCCESS") {
+        Column {
+            repeat(15) {
+                AnimatedShimmer()
+            }
         }
-    }else{
+    } else {
         Scaffold(
             scaffoldState = scaffoldState
         ) {
@@ -53,9 +55,9 @@ fun RankingUI(state: ScoreboardState) {
             .padding(horizontal = 14.dp)
             .padding(top = 10.dp)
             .verticalScroll(rememberScrollState())
-    ){
+    ) {
         var idx = 1
-        state.rankings.forEach{
+        state.rankings.forEach {
             //TODO: give onClick functionality to navigate to Contestant Screen
             HandleScoreItem(index = idx++, handleName = it.key, score = it.value, onClick = {})
         }
