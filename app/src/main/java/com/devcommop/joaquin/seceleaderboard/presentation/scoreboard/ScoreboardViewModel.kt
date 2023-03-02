@@ -38,21 +38,36 @@ class ScoreboardViewModel @Inject constructor(
         getOverallRankings()
     }
 
+    fun onEvent(event: ScoreboardEvent) {
+        when (event) {
+            is ScoreboardEvent.Retry -> {
+                getOverallRankings()
+            }
+        }
+    }
+
     private fun getOverallRankings() {
         viewModelScope.launch {
             appUseCases.getScoreboardUseCase(docId = "ece_2021").collectLatest { res ->
                 when (res) {
                     is Resource.Success -> {
-                        _state.value = state.value.copy(rankings = res.data!!.totalScores,
-                        currentStatus = "SUCCESS")
+                        _state.value = state.value.copy(
+                            rankings = res.data!!.totalScores,
+                            currentStatus = CurrentStatus.Success,
+                            errorMessage = ""
+                        )
+                        Log.d(TAG, "res: ${res}")
                     }
                     is Resource.Loading -> {
-                        _state.value = state.value.copy(currentStatus = res.message ?: "LOADING")
+                        _state.value = state.value.copy(currentStatus = CurrentStatus.Loading)
                         Log.d(TAG, "res: ${res}")
                     }
                     is Resource.Error -> {
                         _state.value =
-                            state.value.copy(currentStatus = "ERROR")//todo: add message to this error
+                            state.value.copy(
+                                currentStatus = CurrentStatus.Error,
+                                errorMessage = res.message.toString()
+                            )//todo: add message to this error
                         Log.d(TAG, "res: ${res}")
                     }
                 }

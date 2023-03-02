@@ -1,5 +1,8 @@
 package com.devcommop.joaquin.seceleaderboard.data.remote.custom
 
+import com.devcommop.joaquin.seceleaderboard.common.Constants
+import com.devcommop.joaquin.seceleaderboard.data.remote.dto.Row
+import com.devcommop.joaquin.seceleaderboard.domain.util.CfScoreCalculator
 import com.devcommop.joaquin.seceleaderboard.domain.util.SortHashMap
 
 data class ScoreboardResult(
@@ -10,5 +13,17 @@ data class ScoreboardResult(
 ){
     fun sortTotalScores(){
         totalScores = SortHashMap.sortByValueDescending(totalScores)
+    }
+
+    fun updateScore(rows: List<Row>) = synchronized(this){
+        for (row in rows) {
+            val handleName = row.party.members[Constants.DEFAULT_MEMBER_IDX].handle
+            val handleRank = row.rank
+            val handleScore = CfScoreCalculator.getScore(handleRank)
+
+            if (this.totalScores[handleName] == null)
+                this.totalScores[handleName] = 0
+            this.totalScores[handleName] = this.totalScores[handleName]!! + handleScore
+        }
     }
 }

@@ -16,7 +16,10 @@ class GetScoreboardUseCase @Inject constructor(
         try{
             emit(Resource.Loading<ScoreboardResult>())
             val scoreboard = repository.getScoreboard(docId = docId)
-            emit(Resource.Success<ScoreboardResult>(scoreboard))
+            if(scoreboard.exception != null)
+                emit(Resource.Error<ScoreboardResult>(scoreboard.exception!!.localizedMessage ?: "An unexpected error occurred"))
+            else
+                emit(Resource.Success<ScoreboardResult>(scoreboard))
         }catch (e: HttpException){//response of server isn't a success (for success-> resCode starts with 2)
             emit(Resource.Error<ScoreboardResult>(e.localizedMessage ?: "An unexpected error occurred"))
         }catch(e : IOException){//when repo can't talk to server eg no internet connection or server is offline

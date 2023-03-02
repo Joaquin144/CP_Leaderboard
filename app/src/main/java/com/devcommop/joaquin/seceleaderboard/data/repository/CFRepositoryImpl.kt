@@ -1,7 +1,6 @@
 package com.devcommop.joaquin.seceleaderboard.data.repository
 
 import android.util.Log
-import com.devcommop.joaquin.seceleaderboard.CoroutinePractice
 import com.devcommop.joaquin.seceleaderboard.common.Constants
 import com.devcommop.joaquin.seceleaderboard.common.CustomException
 import com.devcommop.joaquin.seceleaderboard.data.remote.CFApi
@@ -15,7 +14,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-import kotlin.math.abs
 
 private const val TAG = "##@@CFRepoImpl"
 
@@ -46,36 +44,25 @@ class CFRepositoryImpl @Inject constructor(
                 val cfHandles = getCfHandles(docId = docId)
                 val contests = getContests(docId = docId).split(";")
                 Log.d(TAG, "contests size = ${contests.size}  ===>  $contests")
-                Log.d(TAG, "cfHandles in runBlocking: $cfHandles")
-                var i = 0
-                while (i < contests.size) {
-                    val contest = contests[i]
+                Log.d(TAG, Thread.currentThread().toString())
+                for(contest in contests) {
                     val options = hashMapOf("contestId" to contest, "handles" to cfHandles)
                     Log.d(TAG, "Doing contest: $contest")
                     lateinit var contestScore: PartiesScore
-                    async {
+                    ////delay(1500)//todo: Avoid using this delay
+                    launch {
+                        Log.d(TAG, Thread.currentThread().toString())
                         contestScore = getPartiesScore(options = options)
                         if (contestScore.status == Constants.CF_API_SUCCESS_STATUS) {
                             Log.d(TAG, "Success $contest")
-                            for (row in contestScore.result.rows) {
-                                val handleName = row.party.members[Constants.DEFAULT_MEMBER_IDX].handle
-                                val handleRank = row.rank
-                                val handleScore = CfScoreCalculator.getScore(handleRank)
-                                if (scoreboardResult.totalScores[handleName] == null)
-                                    scoreboardResult.totalScores[handleName] = 0
-                                scoreboardResult.totalScores[handleName] = scoreboardResult.totalScores[handleName]!! + handleScore
-                            }
+                            scoreboardResult.updateScore(contestScore.result.rows)
                         } else {
-                            //i--
-                            //delay(200)//retry with 1s cooldown   --> Not working beacuse Retroift response is not handled
-                            //throw (CustomException(message = "Failed to fetch contest: Codeforces $contest"))
+                            throw (CustomException(message = "Failed to fetch contest: Codeforces $contest"))
                         }
-                        delay(1500)
-                    }.await()
-                    i++
+                    }
                 }
             }
-            Log.d(TAG, scoreboardResult.totalScores.toSortedMap().toString())
+            Log.d(TAG, "Everything went well")
             scoreboardResult.sortTotalScores()
             return scoreboardResult
         } catch (exception: Exception) {
