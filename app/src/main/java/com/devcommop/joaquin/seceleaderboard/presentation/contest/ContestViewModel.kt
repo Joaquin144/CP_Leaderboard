@@ -62,7 +62,6 @@ class ContestViewModel @Inject constructor(
                                         parties = it.data?: emptyList(),
                                         currentStatus = "SUCCESS"
                                     )
-                                    Log.d(TAG, it.data.toString())
                                 }
                                 is Resource.Loading -> {
                                     _state.value = state.value.copy(currentStatus = "LOADING")

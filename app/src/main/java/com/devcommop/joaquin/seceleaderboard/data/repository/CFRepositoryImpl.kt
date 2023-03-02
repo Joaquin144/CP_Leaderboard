@@ -26,28 +26,26 @@ class CFRepositoryImpl @Inject constructor(
 
     private val firestore = FirebaseFirestore.getInstance()
 
+    private suspend fun getCachedPartiesScore(options: Map<String, String>): PartiesScore? {
+        return contestsDao.getContestById(id = options["contestId"]!!.toInt())
+    }
+
     override suspend fun getPartiesScore(options: Map<String, String>): PartiesScore {
-        val cachedPartyScore = contestsDao.getContestById(id = options["contestId"]!!.toInt())
-        Log.d(TAG, "Team Bravo. Do you copy? cachedPartyScore: $cachedPartyScore")
-        if (cachedPartyScore != null){
-            Log.d(TAG, "Returning cached contest: CF ${options["contestId"]}")
-            return cachedPartyScore
-        }
-        else {
-            val onlinePartyScore = api.getPartiesScore(options = options)
-            if (onlinePartyScore.status == Constants.CF_API_SUCCESS_STATUS) {
-                Log.d(TAG, "Team Bravo. Do you copy?")
-                contestsDao.insertContest(
-                    PartiesScore(
-                        result = onlinePartyScore.result,
-                        status = onlinePartyScore.status,
-                        id = onlinePartyScore.result.contest.id//is same as options["contestId"]
-                    )
+        val temp = getCachedPartiesScore(options = options)
+        if (temp != null)
+            return temp
+        val onlinePartyScore = api.getPartiesScore(options = options)
+        if (onlinePartyScore.status == Constants.CF_API_SUCCESS_STATUS) {
+            contestsDao.insertContest(
+                PartiesScore(
+                    result = onlinePartyScore.result,
+                    status = onlinePartyScore.status,
+                    id = options["contestId"]!!.toInt()
                 )
-                Log.d(TAG, "Caching contest: ${onlinePartyScore.result.contest.id}")
-            }
-            return onlinePartyScore
+            )
+            Log.d(TAG, "Caching contest: ${options["contestId"]!!.toInt()}")
         }
+        return onlinePartyScore
     }
 
     override suspend fun getCfHandles(docId: String): String {
@@ -68,12 +66,24 @@ class CFRepositoryImpl @Inject constructor(
                 val contests = getContests(docId = docId).split(";")
                 Log.d(TAG, "contests size = ${contests.size}  ===>  $contests")
                 Log.d(TAG, Thread.currentThread().toString())
-                for (contest in contests) {
+                val uncachedContests = mutableListOf<String>()
+                async {
+                    for (contest in contests) {
+                        val options = hashMapOf("contestId" to contest, "handles" to cfHandles)
+                        val contestScore = getCachedPartiesScore(options = options)
+                        if (contestScore == null) {
+                            uncachedContests.add(contest)
+                        } else {
+                            scoreboardResult.updateScore(contestScore.result.rows)
+                        }
+                    }
+                }.await()
+                for (contest in uncachedContests) {
                     val options = hashMapOf("contestId" to contest, "handles" to cfHandles)
                     Log.d(TAG, "Doing contest: $contest")
                     lateinit var contestScore: PartiesScore
                     delay(1500)//todo: Avoid using this delay
-                    launch {
+                    async {
                         Log.d(TAG, Thread.currentThread().toString())
                         contestScore = getPartiesScore(options = options)
                         if (contestScore.status == Constants.CF_API_SUCCESS_STATUS) {
@@ -82,14 +92,14 @@ class CFRepositoryImpl @Inject constructor(
                         } else {
                             throw (CustomException(message = "Failed to fetch contest: Codeforces $contest"))
                         }
-                    }
+                    }.await()
                 }
             }
             Log.d(TAG, "Everything went well")
             scoreboardResult.sortTotalScores()
             return scoreboardResult
         } catch (exception: Exception) {
-            Log.d(TAG, "Something bad happened : ${exception.message}")
+            Log.d(TAG, "Something bad happened : ${exception.message} ;; ${exception.localizedMessage}")
             scoreboardResult.exception = exception
             return scoreboardResult
         }

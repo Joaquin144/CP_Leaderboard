@@ -26,7 +26,7 @@ fun UpcomingContestListItem(contest: Contest) {
             .padding(20.dp)
     ) {
         Text(
-            text = contest.name,
+            text = contest.name!!,
             fontFamily = FontFamily(Font(R.font.poppins)),
             color = SecondaryColor,
             fontSize = 14.sp,

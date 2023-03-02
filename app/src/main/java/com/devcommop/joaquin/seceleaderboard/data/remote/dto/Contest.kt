@@ -1,15 +1,17 @@
 package com.devcommop.joaquin.seceleaderboard.data.remote.dto
 
+import com.google.gson.annotations.SerializedName
 import java.text.SimpleDateFormat
 import java.util.*
 
 data class Contest(
-    val id: Int,
-    val name: String,
-    val description: String,
+    @SerializedName("id")
+    val idD: Int,
+    val name: String?,
+    val description: String?,
     val durationSeconds: Int,
-    val phase: String,
-    val relativeTimeSeconds: Int,
+    val phase: String?,
+    val relativeTimeSeconds: Int?,
     val startTimeSeconds: Int,
 ) {
     fun getStartTime(): String {
