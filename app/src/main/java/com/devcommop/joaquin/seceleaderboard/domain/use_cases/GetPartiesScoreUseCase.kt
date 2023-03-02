@@ -19,7 +19,7 @@ class GetPartiesScoreUseCase @Inject constructor(
             emit(Resource.Loading<List<Row>>())
             val partiesScore = repository.getPartiesScore(options = options)
             if(partiesScore.status == Constants.CF_API_FAILED_STATUS) {
-                throw CustomException(message = partiesScore.comment)
+                throw CustomException(message = partiesScore.comment.toString())
             }
             val rowsList = partiesScore.result.rows
             emit(Resource.Success<List<Row>>(rowsList))

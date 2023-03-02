@@ -1,6 +1,9 @@
 package com.devcommop.joaquin.seceleaderboard.di
 
+import android.app.Application
+import androidx.room.Room
 import com.devcommop.joaquin.seceleaderboard.common.Constants
+import com.devcommop.joaquin.seceleaderboard.data.cache.CachedContestsDb
 import com.devcommop.joaquin.seceleaderboard.data.remote.CFApi
 import com.devcommop.joaquin.seceleaderboard.data.repository.CFRepositoryImpl
 import com.devcommop.joaquin.seceleaderboard.domain.repository.CFRepository
@@ -36,8 +39,18 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCFRepository(api: CFApi): CFRepository {
-        return CFRepositoryImpl(api)
+    fun provideCachedContestsDb(app: Application): CachedContestsDb{
+        return Room.databaseBuilder(
+            app.applicationContext,
+            CachedContestsDb::class.java,
+            CachedContestsDb.DATABASE_NAME
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCFRepository(api: CFApi, cachedContestsDb: CachedContestsDb): CFRepository {
+        return CFRepositoryImpl(api, cachedContestsDb.contestsDao)
     }
 
     @Provides

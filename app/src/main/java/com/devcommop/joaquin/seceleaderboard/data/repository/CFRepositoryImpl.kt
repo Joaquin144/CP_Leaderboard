@@ -3,6 +3,8 @@ package com.devcommop.joaquin.seceleaderboard.data.repository
 import android.util.Log
 import com.devcommop.joaquin.seceleaderboard.common.Constants
 import com.devcommop.joaquin.seceleaderboard.common.CustomException
+import com.devcommop.joaquin.seceleaderboard.data.cache.CachedContestsDb
+import com.devcommop.joaquin.seceleaderboard.data.cache.ContestsDao
 import com.devcommop.joaquin.seceleaderboard.data.remote.CFApi
 import com.devcommop.joaquin.seceleaderboard.data.remote.custom.ScoreboardResult
 import com.devcommop.joaquin.seceleaderboard.data.remote.dto.Contest
@@ -18,13 +20,34 @@ import javax.inject.Inject
 private const val TAG = "##@@CFRepoImpl"
 
 class CFRepositoryImpl @Inject constructor(
-    private val api: CFApi
+    private val api: CFApi,
+    private val contestsDao: ContestsDao
 ) : CFRepository {
 
     private val firestore = FirebaseFirestore.getInstance()
 
     override suspend fun getPartiesScore(options: Map<String, String>): PartiesScore {
-        return api.getPartiesScore(options = options)
+        val cachedPartyScore = contestsDao.getContestById(id = options["contestId"]!!.toInt())
+        Log.d(TAG, "Team Bravo. Do you copy? cachedPartyScore: $cachedPartyScore")
+        if (cachedPartyScore != null){
+            Log.d(TAG, "Returning cached contest: CF ${options["contestId"]}")
+            return cachedPartyScore
+        }
+        else {
+            val onlinePartyScore = api.getPartiesScore(options = options)
+            if (onlinePartyScore.status == Constants.CF_API_SUCCESS_STATUS) {
+                Log.d(TAG, "Team Bravo. Do you copy?")
+                contestsDao.insertContest(
+                    PartiesScore(
+                        result = onlinePartyScore.result,
+                        status = onlinePartyScore.status,
+                        id = onlinePartyScore.result.contest.id//is same as options["contestId"]
+                    )
+                )
+                Log.d(TAG, "Caching contest: ${onlinePartyScore.result.contest.id}")
+            }
+            return onlinePartyScore
+        }
     }
 
     override suspend fun getCfHandles(docId: String): String {
@@ -45,11 +68,11 @@ class CFRepositoryImpl @Inject constructor(
                 val contests = getContests(docId = docId).split(";")
                 Log.d(TAG, "contests size = ${contests.size}  ===>  $contests")
                 Log.d(TAG, Thread.currentThread().toString())
-                for(contest in contests) {
+                for (contest in contests) {
                     val options = hashMapOf("contestId" to contest, "handles" to cfHandles)
                     Log.d(TAG, "Doing contest: $contest")
                     lateinit var contestScore: PartiesScore
-                    ////delay(1500)//todo: Avoid using this delay
+                    delay(1500)//todo: Avoid using this delay
                     launch {
                         Log.d(TAG, Thread.currentThread().toString())
                         contestScore = getPartiesScore(options = options)
@@ -89,7 +112,7 @@ class CFRepositoryImpl @Inject constructor(
                 contest.phase == "BEFORE"
                 //contest.phase == "BEFORE" && (contest.relativeTimeSeconds.let { time -> abs(time) <= 24 * 7 * 60 * 60 })
             }
-            Log.d(TAG, "Upcoming Contests: $list")
+            //Log.d(TAG, "Upcoming Contests: $list")
             return list.reversed()
         } catch (exception: Exception) {
             return emptyList()
