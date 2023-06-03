@@ -6,4 +6,6 @@ object Constants {
     const val CF_API_FAILED_STATUS = "FAILED"
     const val DEFAULT_MEMBER_IDX = 0
     const val PARAM_CONTEST_ID = "contestId"
+
+    const val USER_COLLECTION = "USERS"
 }

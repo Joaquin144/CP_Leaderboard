@@ -34,7 +34,7 @@ fun SettingsScreen(
 ) {
     Column() {
         HeaderText(text = "Settings")
-        GeneralOptionsUI()
+        //GeneralOptionsUI()
         SupportOptionsUI()
     }
 }
@@ -140,6 +140,7 @@ fun SupportOptionsUI() {
     val context = LocalContext.current
     val gitIntent = remember { Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Joaquin144/CP_Leaderboard")) }
     val aboutIntent = remember { Intent(Intent.ACTION_VIEW, Uri.parse("https://demo-electropix.netlify.app/")) }
+    //val mailIntent = remember { Intent(Intent.ACTION_SENDTO, Uri.parse("https://demo-electropix.netlify.app/")) }
 
     Column(
         modifier = Modifier
@@ -158,26 +159,32 @@ fun SupportOptionsUI() {
         SupportItem(
             icon = R.drawable.ic_whatsapp,
             mainText = "Contact",
-            onClick = {}
+            onClick = { context.startActivity(aboutIntent) }
         )
         SupportItem(
             icon = R.drawable.ic_feedback,
             mainText = "Feedback",
-            onClick = {}
+            onClick = {
+                val mailIntent = Intent(Intent.ACTION_SEND)
+                mailIntent.putExtra(Intent.EXTRA_EMAIL,"vvpp898.comco@gmail.com")
+                mailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feedback for SECE Leaderboard")
+                mailIntent.type = "message/rfc822"
+                context.startActivity(Intent.createChooser(mailIntent,"Choose an Email client : "))
+            }
         )
         SupportItem(
             icon = R.drawable.ic_privacy_policy,
             mainText = "Privacy Policy",
-            onClick = {}
+            onClick = { context.startActivity(aboutIntent) }
         )
         SupportItem(
             icon = R.drawable.ic_about,
-            mainText = "About",
+            mainText = "Website",
             onClick = { context.startActivity(aboutIntent) }
         )
         SupportItem(
             icon = R.drawable.ic_eye_open,
-            mainText = "Code",
+            mainText = "Code and Contributing",
             onClick = { context.startActivity(gitIntent) }
         )
     }

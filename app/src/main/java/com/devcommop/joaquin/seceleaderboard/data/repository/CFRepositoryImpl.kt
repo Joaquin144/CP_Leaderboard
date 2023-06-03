@@ -27,6 +27,7 @@ class CFRepositoryImpl @Inject constructor(
     private val firestore = FirebaseFirestore.getInstance()
 
     private suspend fun getCachedPartiesScore(options: Map<String, String>): PartiesScore? {
+        //todo: If cfHandles are changed then cached score should become invalid
         return contestsDao.getContestById(id = options["contestId"]!!.toInt())
     }
 
@@ -48,9 +49,12 @@ class CFRepositoryImpl @Inject constructor(
         return onlinePartyScore
     }
 
+    /**
+     * This function will get all Codeforces handles from Firebase Firestore
+     */
     override suspend fun getCfHandles(docId: String): String {
         try {
-            val userEntity = firestore.collection("USERS").document(docId).get().await()
+            val userEntity = firestore.collection(Constants.USER_COLLECTION).document(docId).get().await()
                 .toObject(FirebaseUserEntity::class.java)
             return userEntity?.handles ?: "-1"
         } catch (exception: Exception) {
@@ -58,6 +62,9 @@ class CFRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Gives the overall ranking of contestants where all contests are considered
+     */
     override suspend fun getScoreboard(docId: String): ScoreboardResult {
         val scoreboardResult = ScoreboardResult()
         try {
@@ -67,6 +74,8 @@ class CFRepositoryImpl @Inject constructor(
                 Log.d(TAG, "contests size = ${contests.size}  ===>  $contests")
                 Log.d(TAG, Thread.currentThread().toString())
                 val uncachedContests = mutableListOf<String>()
+
+                //Aim: 1st get scores of contests which are cached
                 async {
                     for (contest in contests) {
                         val options = hashMapOf("contestId" to contest, "handles" to cfHandles)
@@ -78,11 +87,16 @@ class CFRepositoryImpl @Inject constructor(
                         }
                     }
                 }.await()
+
+                //Aim: 2nd call CF Api to get scores of contests not yet cached on our device
                 for (contest in uncachedContests) {
                     val options = hashMapOf("contestId" to contest, "handles" to cfHandles)
-                    Log.d(TAG, "Doing contest: $contest")
+                    Log.d(TAG, "Calling CF Api for contest: $contest")
                     lateinit var contestScore: PartiesScore
-                    delay(1500)//todo: Avoid using this delay
+                    /*todo: [Important] Avoid using this delay.
+                    Currently CF blocks too many requests too quickly. So to avoid too many requests in less time we are using a delay of 1500ms. But this is making app experience bad.
+                     */
+                    delay(1500)
                     async {
                         Log.d(TAG, Thread.currentThread().toString())
                         contestScore = getPartiesScore(options = options)
@@ -101,10 +115,14 @@ class CFRepositoryImpl @Inject constructor(
         } catch (exception: Exception) {
             Log.d(TAG, "Something bad happened : ${exception.message} ;; ${exception.localizedMessage}")
             scoreboardResult.exception = exception
+            scoreboardResult.totalScores = hashMapOf()//Aim: reset the totalScores
             return scoreboardResult
         }
     }
 
+    /**
+     * Returns String of contests separated by a semicolon (;)
+     */
     override suspend fun getContests(docId: String): String {
         ////val cc = CoroutinePractice()
         try {
@@ -116,6 +134,9 @@ class CFRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Fetches the future contests of Codeforces
+     */
     override suspend fun getUpcomingContestsList(): List<Contest> {
         try {
             val list = api.getUpcomingContestsList().result.filter { contest ->
@@ -128,7 +149,6 @@ class CFRepositoryImpl @Inject constructor(
             return emptyList()
         }
     }
-
 }
 
 //override suspend fun getScoreboard(docId: String): ScoreboardResult {

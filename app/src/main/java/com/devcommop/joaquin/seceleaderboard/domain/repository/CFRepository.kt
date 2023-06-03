@@ -5,7 +5,7 @@ import com.devcommop.joaquin.seceleaderboard.data.remote.dto.Contest
 import com.devcommop.joaquin.seceleaderboard.data.remote.dto.PartiesScore
 
 /**
- * @param [docId] is the id of Firestore document where data has been saved
+ * @param [docId] is the id of Firestore document where concerned data has been saved
  */
 interface CFRepository {
 

@@ -7,7 +7,7 @@ import com.devcommop.joaquin.seceleaderboard.domain.util.SortHashMap
 
 data class ScoreboardResult(
 //    var list: List<ScoreboardRow>? = null,
-    val scores: HashMap<String, List<Int>> = hashMapOf<String, List<Int>>(),
+    //val scores: HashMap<String, List<Int>> = hashMapOf<String, List<Int>>(),
     var totalScores: HashMap<String, Int> = hashMapOf<String, Int>(),
     var exception: Exception? = null
 ){
@@ -15,15 +15,15 @@ data class ScoreboardResult(
         totalScores = SortHashMap.sortByValueDescending(totalScores)
     }
 
-    fun updateScore(rows: List<Row>) = synchronized(this){
+    fun updateScore(rows: List<Row>) {
         for (row in rows) {
             val handleName = row.party.members[Constants.DEFAULT_MEMBER_IDX].handle
             val handleRank = row.rank
             val handleScore = CfScoreCalculator.getScore(handleRank)
 
-            if (this.totalScores[handleName] == null)
-                this.totalScores[handleName] = 0
-            this.totalScores[handleName] = this.totalScores[handleName]!! + handleScore
+            if (totalScores[handleName] == null)
+                totalScores[handleName] = 0
+            totalScores[handleName] = totalScores[handleName]!! + handleScore
         }
     }
 }
